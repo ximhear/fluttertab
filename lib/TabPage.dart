@@ -4,11 +4,21 @@ class TabPage extends StatefulWidget {
   @override
   _TabPageState createState() => _TabPageState();
 }
+enum PkgTabEnum {
+  providers,
+  mine,
+}
+
+class PkgTab {
+  PkgTab({this.text, this.type});
+  String text;
+  PkgTabEnum type;
+}
 
 class _TabPageState extends State<TabPage> with SingleTickerProviderStateMixin {
-  final List<Tab> myTabs = <Tab>[
-    Tab(text: 'LEFT'),
-    Tab(text: 'RIGHT'),
+  final List<PkgTab> myTabs = <PkgTab>[
+    PkgTab(text: "LEFT", type: PkgTabEnum.providers),
+    PkgTab(text: "RIGHT", type: PkgTabEnum.mine),
   ];
 
   TabController _tabController;
@@ -43,40 +53,18 @@ class _TabPageState extends State<TabPage> with SingleTickerProviderStateMixin {
                         controller: _textEditingController,
                         decoration: InputDecoration(
                           border: OutlineInputBorder(),
-                          labelText: '검색어를 입력하세요.',
+                          labelText: '패키지 이름',
+                            suffixIcon: IconButton(
+                              onPressed: () => _textEditingController.clear(),
+                              icon: Icon(Icons.clear),
+                            )
                         ),
-                        onSubmitted: (text) {
-
-                          showDialog(context: context, builder: (context) {
-                            return AlertDialog(title: Text(text), actions: <Widget>[
-                              FlatButton(child: Text("확인"), onPressed: () {
-                                Navigator.pop(context);
-                              },)
-                            ],);
-                            return Text(text);
-                          });
+                        onChanged: (value) {
+                          debugPrint(value);
                         },
                       ),
                     ),
                   ),
-                  IconButton(
-                    icon: Icon(Icons.search),
-                    onPressed: () {
-                      FocusScopeNode currentFocus = FocusScope.of(context);
-                      if (!currentFocus.hasPrimaryFocus) {
-                        currentFocus.unfocus();
-                      }
-                      var text = _textEditingController.text;
-                      showDialog(context: context, builder: (context) {
-                        return AlertDialog(title: Text(text), actions: <Widget>[
-                          FlatButton(child: Text("확인"), onPressed: () {
-                            Navigator.pop(context);
-                          },)
-                        ],);
-                        return Text(text);
-                      });
-                    },
-                  )
                 ],
               )
             ),
@@ -85,20 +73,33 @@ class _TabPageState extends State<TabPage> with SingleTickerProviderStateMixin {
               child: TabBar(
                 labelColor: Colors.black,
                 controller: _tabController,
-                tabs: myTabs,
+                tabs: myTabs.map((e) => Tab(text: e.text)).toList(),
               ),
             ),
             Expanded(
               child: TabBarView(
                 controller: _tabController,
-                children: myTabs.map((Tab tab) {
-                  final String label = tab.text.toLowerCase();
-                  return Center(
-                    child: Text(
-                      'This is the $label tab',
-                      style: const TextStyle(fontSize: 36),
-                    ),
-                  );
+                children: myTabs.map((PkgTab tab) {
+                  if (tab.type == PkgTabEnum.providers) {
+
+                    final String label = tab.text.toLowerCase();
+                    return Center(
+                      child: Text(
+                        'This is the $label tab',
+                        style: const TextStyle(fontSize: 36),
+                      ),
+                    );
+                  }
+                  else {
+
+                    final String label = tab.text.toLowerCase();
+                    return Center(
+                      child: Text(
+                        'This is the $label tab',
+                        style: const TextStyle(fontSize: 36),
+                      ),
+                    );
+                  }
                 }).toList(),
               ),
             ),
